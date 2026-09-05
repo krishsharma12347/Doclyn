@@ -1,11 +1,11 @@
 """
-FastAPI entrypoint. Wires routers and the global exception handler,
+FastAPI entrypoint. Wires routers and the global exception handlers,
 plus a tiny health check so Node's smoke tests have something to hit.
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.exceptions import global_exception_handler
+from app.core.exceptions import global_exception_handler, http_exception_handler
 from app.routers import organize, optimize
 
 
@@ -20,6 +20,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# IMPORTANT: HTTPException must be registered explicitly, otherwise FastAPI's
+# own default handler intercepts it before our generic Exception handler
+# ever runs, and the response comes back as {"detail": "..."} instead of
+# our {"success": false, "data": null, "message": "..."} shape.
+app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
 app.include_router(organize.router)

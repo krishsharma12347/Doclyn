@@ -58,4 +58,12 @@ def test_merge_corrupt_input_raises(tmp_path):
     out = tmp_path / "out.pdf"
 
     try:
-        merge_pdfs
+        merge_pdfs([bad, good], out)
+    except FileProcessingError:
+        # expected — corrupt input should raise, not silently produce a bad output
+        pass
+    else:
+        raise AssertionError("Expected FileProcessingError for corrupt input")
+
+    # Output file should not exist since the merge failed before saving.
+    assert not out.exists()
