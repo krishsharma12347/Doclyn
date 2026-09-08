@@ -33,3 +33,6 @@
 2026-09-08T04:43:57.935Z [INFO]: Environment: development
 2026-09-08T05:02:08.286Z [ERROR]: [object Object]
 2026-09-08T05:03:45.956Z [ERROR]: [object Object]
+2026-09-08T07:08:51.010Z [INFO]: Database connected successfully
+2026-09-08T07:08:51.015Z [INFO]: Server running on port 3000
+2026-09-08T07:08:51.016Z [INFO]: Environment: development
