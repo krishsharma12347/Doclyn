@@ -1,0 +1,35 @@
+2026-09-06T06:52:26.114Z [ERROR]: Failed to start server
+2026-09-06T12:55:01.323Z [ERROR]: Failed to start server
+2026-09-06T13:02:32.224Z [ERROR]: error: password authentication failed for user "doclyn_user"
+    at C:\Users\krish\Documents\GitHub\Doclyn\backend-node\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async start (C:\Users\krish\Documents\GitHub\Doclyn\backend-node\src\server.js:17:5)
+2026-09-06T13:56:36.110Z [INFO]: Database connected successfully
+2026-09-06T13:56:36.123Z [INFO]: Server running on port 3000
+2026-09-06T13:56:36.124Z [INFO]: Environment: development
+2026-09-06T14:02:28.043Z [INFO]: Database connected successfully
+2026-09-06T14:02:28.055Z [INFO]: Server running on port 3000
+2026-09-06T14:02:28.055Z [INFO]: Environment: development
+2026-09-08T04:13:12.022Z [INFO]: Database connected successfully
+2026-09-08T04:13:12.028Z [INFO]: Server running on port 3000
+2026-09-08T04:13:12.028Z [INFO]: Environment: development
+2026-09-08T04:19:34.221Z [ERROR]: [object Object]
+2026-09-08T04:19:56.520Z [ERROR]: [object Object]
+2026-09-08T04:20:03.936Z [ERROR]: [object Object]
+2026-09-08T04:22:31.922Z [ERROR]: [object Object]
+2026-09-08T04:22:40.492Z [ERROR]: [object Object]
+2026-09-08T04:24:21.500Z [INFO]: SIGINT received, shutting down gracefully
+2026-09-08T04:24:48.113Z [INFO]: Database connected successfully
+2026-09-08T04:24:48.123Z [INFO]: Server running on port 3000
+2026-09-08T04:24:48.124Z [INFO]: Environment: development
+2026-09-08T04:24:56.635Z [ERROR]: [object Object]
+2026-09-08T04:27:36.089Z [INFO]: SIGINT received, shutting down gracefully
+2026-09-08T04:27:48.189Z [INFO]: Database connected successfully
+2026-09-08T04:27:48.195Z [INFO]: Server running on port 3000
+2026-09-08T04:27:48.195Z [INFO]: Environment: development
+2026-09-08T04:27:56.713Z [INFO]: User registered: 3e54c945-95b6-41af-85ed-90ae1262e74e
+2026-09-08T04:43:57.926Z [INFO]: Database connected successfully
+2026-09-08T04:43:57.934Z [INFO]: Server running on port 3000
+2026-09-08T04:43:57.935Z [INFO]: Environment: development
+2026-09-08T05:02:08.286Z [ERROR]: [object Object]
+2026-09-08T05:03:45.956Z [ERROR]: [object Object]

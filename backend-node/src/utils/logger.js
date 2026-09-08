@@ -17,7 +17,10 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
-    winston.format.sprintf(({ timestamp, level, message, stack }) => {
+    // FIX: winston.format.sprintf does not exist — the real function is
+    // `printf`. The old code would throw at import time ("sprintf is not
+    // a function"), crashing the whole app before it could even start.
+    winston.format.printf(({ timestamp, level, message, stack }) => {
       return `${timestamp} [${level.toUpperCase()}]: ${stack || message}`;
     })
   ),

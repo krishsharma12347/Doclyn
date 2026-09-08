@@ -1,5 +1,7 @@
 /**
- * Auth business logic. No HTTP concerns here. * Controllers call these; controllers do NOT touch the DB directly. */
+ * Auth business logic. No HTTP concerns here.
+ * Controllers call these; controllers do NOT touch the DB directly.
+ */
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -13,7 +15,8 @@ const REFRESH_EXPIRES = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 const BCRYPT_COST = parseInt(process.env.BCRYPT_COST || '10', 10);
 
 /**
- * Convert "15m" / "7d" strings into a future Date for DB expiry. */
+ * Convert "15m" / "7d" strings into a future Date for DB expiry.
+ */
 function expiresAtFromString(str) {
   const m = String(str).match(/^(\d+)([smhd])$/);
   if (!m) throw new Error(`Invalid expiry string: ${str}`);
@@ -33,7 +36,8 @@ function signAccessToken(user) {
 
 /**
  * Refresh tokens are opaque random strings (not JWTs) so they can
- * be revoked by deleting the session row. */
+ * be revoked by deleting the session row.
+ */
 function signRefreshToken() {
   return crypto.randomBytes(48).toString('hex');
 }
@@ -53,9 +57,12 @@ async function register({ name, email, password }) {
     throw new HttpError(400, 'invalid email format');
   }
 
+  // FIX: this check previously had its throw commented out, so duplicate
+  // emails fell through to the INSERT and hit the DB's unique constraint
+  // as an unhandled 500 error instead of a clean 409.
   const existing = await model.findUserByEmail(email);
   if (existing) {
-    // Don't leak whether email is taken. throw new HttpError(409, 'Unable to create account');
+    throw new HttpError(409, 'An account with this email already exists');
   }
 
   const passwordHash = await bcrypt.hash(password, BCRYPT_COST);

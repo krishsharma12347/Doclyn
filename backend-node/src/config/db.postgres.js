@@ -20,4 +20,6 @@ pool.on('error', (err) => {
 module.exports = {
   pool,
   query: (text, params) => pool.query(text, params),
+  // Needed for graceful shutdown (server.js) and test teardown (tests/setup.js).
+  end: () => pool.end(),
 };
