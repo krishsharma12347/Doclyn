@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/*
+  Tailwind CSS v4: no tailwind.config.js.
+  All design tokens live in this @theme block and become real utilities,
+  e.g. --color-accent -> bg-accent / text-accent / border-accent.
+*/
+@theme {
+  /* Surfaces */
+  --color-canvas: #fafaf7;
+  --color-surface: #ffffff;
+
+  /* Text */
+  --color-ink: #1c1c1a;
+  --color-muted: #6b6b65;
+
+  /* Brand */
+  --color-accent: #0f5257;
+  --color-accent-hover: #0b3e42;
+  --color-accent-tint: #eef4f4;
+
+  /* Lines */
+  --color-line: #e4e2dc;
+
+  /* Status */
+  --color-success: #2f7d5a;
+  --color-error: #b3413b;
+  --color-warning: #c08a2e;
+
+  /* Type */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  /* Consistent, visible focus ring across the whole app. */
+  :focus-visible {
+    outline: none;
+  }
+}
