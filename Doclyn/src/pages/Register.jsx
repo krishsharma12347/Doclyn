@@ -1,139 +1,26 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import Button from '../components/Button'
-import { useAuth } from '../context/AuthContext'
-import { getErrorMessage } from '../services/api'
-
-const inputClass =
-  'w-full rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition-all duration-200 placeholder:text-muted/70 hover:border-accent/60 focus:border-accent focus:ring-2 focus:ring-accent/25'
+import { useState } from "react";
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
-  const { register } = useAuth()
-  const navigate = useNavigate()
-
-  const [form, setForm] = useState({ name: '', email: '', password: '' })
-  const [fieldErrors, setFieldErrors] = useState({})
-  const [formError, setFormError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  const update = (key) => (event) => {
-    setForm((prev) => ({ ...prev, [key]: event.target.value }))
-    setFieldErrors((prev) => ({ ...prev, [key]: '' }))
-  }
-
-  const validate = () => {
-    const errors = {}
-    if (!form.name.trim()) errors.name = 'Name is required.'
-    if (!form.email.trim()) errors.email = 'Email is required.'
-    else if (!/^\S+@\S+\.\S+$/.test(form.email)) errors.email = 'Enter a valid email address.'
-    if (!form.password) errors.password = 'Password is required.'
-    else if (form.password.length < 8) errors.password = 'Use at least 8 characters.'
-    setFieldErrors(errors)
-    return Object.keys(errors).length === 0
-  }
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    setFormError('')
-    if (!validate()) return
-
-    setSubmitting(true)
-    try {
-      await register({
-        name: form.name.trim(),
-        email: form.email.trim(),
-        password: form.password,
-      })
-      // Registration does not sign the user in — send them to /login with a notice.
-      navigate('/login', {
-        replace: true,
-        state: { notice: 'Account created. Log in to continue.' },
-      })
-    } catch (error) {
-      setFormError(getErrorMessage(error, 'Could not create your account. Please try again.'))
-    } finally {
-      setSubmitting(false)
-    }
-  }
+  const navigate = useNavigate();
+  const [show, setShow] = useState(false);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-16">
-      <div className="rounded-lg border border-line bg-surface p-7">
-        <h1 className="text-xl font-semibold tracking-tight text-ink">Create your account</h1>
-        <p className="mt-1 text-sm text-muted">Takes less than a minute.</p>
+    <div className="w-full max-w-xl rounded-[30px] glass-dark neon-border p-6 sm:p-10">
+      <div className="mx-auto max-w-md">
+        <div className="grid size-12 place-items-center rounded-2xl border border-cyan-300/15 bg-cyan-400/10 text-cyan-200"><Sparkles size={20} /></div>
+        <h1 className="font-display mt-6 text-3xl font-bold">Create your workspace</h1>
+        <p className="mt-2 text-sm text-slate-500">Start with Doclyn's core PDF tools and expand into intelligent workflows.</p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-          <div>
-            <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-ink">
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              autoComplete="name"
-              value={form.name}
-              onChange={update('name')}
-              placeholder="Your name"
-              className={inputClass}
-            />
-            {fieldErrors.name ? (
-              <p className="mt-1.5 text-sm text-error">{fieldErrors.name}</p>
-            ) : null}
-          </div>
-
-          <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-ink">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={form.email}
-              onChange={update('email')}
-              placeholder="you@company.com"
-              className={inputClass}
-            />
-            {fieldErrors.email ? (
-              <p className="mt-1.5 text-sm text-error">{fieldErrors.email}</p>
-            ) : null}
-          </div>
-
-          <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-ink">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              value={form.password}
-              onChange={update('password')}
-              placeholder="At least 8 characters"
-              className={inputClass}
-            />
-            {fieldErrors.password ? (
-              <p className="mt-1.5 text-sm text-error">{fieldErrors.password}</p>
-            ) : null}
-          </div>
-
-          {formError ? <p className="text-sm text-error">{formError}</p> : null}
-
-          <Button type="submit" fullWidth disabled={submitting}>
-            {submitting ? <span className="animate-pulse">Creating account…</span> : 'Create account'}
-          </Button>
+        <form onSubmit={(e) => { e.preventDefault(); navigate("/dashboard"); }} className="mt-7 space-y-4">
+          <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">Full name</span><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-violet-300/35"><UserRound size={17} className="text-slate-600" /><input required placeholder="Your name" className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none" /></div></label>
+          <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">Email</span><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-violet-300/35"><Mail size={17} className="text-slate-600" /><input required type="email" placeholder="you@example.com" className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none" /></div></label>
+          <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">Password</span><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-violet-300/35"><LockKeyhole size={17} className="text-slate-600" /><input required minLength={8} type={show ? "text" : "password"} placeholder="At least 8 characters" className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none" /><button type="button" onClick={() => setShow(!show)} className="text-slate-600 hover:text-slate-300">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
+          <button className="glow-button flex w-full items-center justify-center gap-2 rounded-xl border border-violet-300/20 bg-gradient-to-r from-violet-600 to-indigo-500 py-3.5 text-sm font-semibold text-white">Create account <ArrowRight size={16} /></button>
         </form>
-
-        <p className="mt-6 text-sm text-muted">
-          Already registered?{' '}
-          <Link
-            to="/login"
-            className="rounded font-medium text-accent underline-offset-4 transition-colors duration-200 hover:text-accent-hover hover:underline focus:outline-none focus:ring-2 focus:ring-accent/40"
-          >
-            Log in
-          </Link>
-        </p>
+        <p className="mt-7 text-center text-sm text-slate-600">Already have an account? <Link to="/login" className="font-semibold text-violet-300 hover:text-violet-200">Sign in</Link></p>
       </div>
     </div>
-  )
+  );
 }
