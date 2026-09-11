@@ -1,57 +1,231 @@
-import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, FileArchive, FileText, Minimize2, Sparkles, Split, UploadCloud } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
-import NeonBackground from "../components/ui/NeonBackground";
-import Logo from "../components/ui/Logo";
-import UploadModal from "../components/upload/UploadModal";
+import { useState } from "react";
+import { useParams, Navigate } from "react-router-dom";
+import { FileStack, Scissors, Minimize2 } from "lucide-react";
+import UploadZone from "../components/upload/UploadZone";
+import FileListItem from "../components/FileListItem";
+import ProgressState from "../components/ProgressState";
+import NeonButton from "../components/ui/NeonButton";
+import api, { getErrorMessage, unwrap, uploadFile } from "../services/api";
 
-const data = {
-  merge: { title: "Merge PDF", desc: "Combine multiple PDF files into one document.", icon: FileArchive, accent: "violet", cta: "Merge files" },
-  split: { title: "Split PDF", desc: "Extract pages or split one PDF into separate files.", icon: Split, accent: "cyan", cta: "Split PDF" },
-  compress: { title: "Compress PDF", desc: "Reduce PDF size while keeping the document usable.", icon: Minimize2, accent: "pink", cta: "Compress PDF" },
-  "ai-pdf": { title: "Ask your PDF", desc: "Upload a document and ask questions about its contents.", icon: Sparkles, accent: "violet", cta: "Start AI workspace" },
+// Each tool's shape lives here so the page itself never branches on
+// "which tool is this" — it just reads config.
+const TOOL_CONFIG = {
+  merge: {
+    icon: FileStack,
+    title: "Merge PDF",
+    description: "Combine two or more PDFs into one file, in the order listed below.",
+    multiple: true,
+    minFiles: 2,
+    hint: "PDF only · minimum 2 files",
+    buildRequest: (fileIds) => ({ url: "/tools/merge", body: { file_ids: fileIds } }),
+  },
+  split: {
+    icon: Scissors,
+    title: "Split PDF",
+    description: "Extract specific pages into a new PDF.",
+    multiple: false,
+    minFiles: 1,
+    hint: "PDF only · one file",
+    extraField: "pages",
+    extraLabel: "Page range",
+    extraPlaceholder: "e.g. 1-3,5",
+    buildRequest: (fileIds, extra) => ({
+      url: "/tools/split",
+      body: { file_id: fileIds[0], pages: extra },
+    }),
+  },
+  compress: {
+    icon: Minimize2,
+    title: "Compress PDF",
+    description: "Reduce file size while keeping quality readable.",
+    multiple: false,
+    minFiles: 1,
+    hint: "PDF only · one file",
+    levelField: true,
+    buildRequest: (fileIds, _extra, level) => ({
+      url: "/tools/compress",
+      body: { file_id: fileIds[0], level },
+    }),
+  },
 };
+
+const LEVELS = ["low", "medium", "high"];
 
 export default function ToolPage() {
   const { tool } = useParams();
-  const [open, setOpen] = useState(false);
-  const current = useMemo(() => data[tool] || data.merge, [tool]);
-  const Icon = current.icon;
+  const config = TOOL_CONFIG[tool];
+
+  const [files, setFiles] = useState([]);
+  const [fileIds, setFileIds] = useState([]);
+  const [extra, setExtra] = useState("");
+  const [level, setLevel] = useState("medium");
+  const [status, setStatus] = useState("idle");
+  const [message, setMessage] = useState("");
+  const [result, setResult] = useState(null);
+
+  if (!config) return <Navigate to="/" replace />;
+
+  const busy = status === "uploading" || status === "processing";
+  const Icon = config.icon;
+
+  const addFiles = (incoming) => {
+    setFiles((prev) => (config.multiple ? [...prev, ...incoming] : incoming.slice(0, 1)));
+    setFileIds([]);
+    setStatus("idle");
+    setMessage("");
+    setResult(null);
+  };
+
+  const removeFile = (index) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setFileIds([]);
+  };
+
+  const reset = () => {
+    setFiles([]);
+    setFileIds([]);
+    setExtra("");
+    setStatus("idle");
+    setMessage("");
+    setResult(null);
+  };
+
+  const runTool = async (ids) => {
+    setStatus("processing");
+    setMessage(`Running ${config.title.toLowerCase()}…`);
+    const { url, body } = config.buildRequest(ids, extra, level);
+    const response = await api.post(url, body);
+    setResult(unwrap(response));
+    setStatus("success");
+  };
+
+  const handleRun = async () => {
+    if (files.length < config.minFiles) {
+      setStatus("error");
+      setMessage(`Select at least ${config.minFiles} PDF${config.minFiles > 1 ? "s" : ""}.`);
+      return;
+    }
+    if (config.extraField && !extra.trim()) {
+      setStatus("error");
+      setMessage(`${config.extraLabel} is required.`);
+      return;
+    }
+
+    try {
+      let ids = fileIds;
+      if (ids.length !== files.length) {
+        setStatus("uploading");
+        setMessage(`Uploading ${files.length} file${files.length > 1 ? "s" : ""}…`);
+        ids = [];
+        for (const file of files) {
+          try {
+            ids.push(await uploadFile(file));
+          } catch (err) {
+            throw new Error(`${file.name}: ${getErrorMessage(err, "upload failed")}`);
+          }
+        }
+        setFileIds(ids);
+      }
+      await runTool(ids);
+    } catch (err) {
+      setStatus("error");
+      setMessage(getErrorMessage(err, "Something went wrong. Please try again."));
+    }
+  };
+
+  const handleRetry = () => {
+    if (fileIds.length === files.length && fileIds.length >= config.minFiles) {
+      runTool(fileIds).catch((err) => {
+        setStatus("error");
+        setMessage(getErrorMessage(err, "Failed. Please try again."));
+      });
+      return;
+    }
+    handleRun();
+  };
 
   return (
-    <div className="doclyn-page relative min-h-screen">
-      <NeonBackground />
-      <header className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-8">
-        <Logo />
-        <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-slate-300 hover:bg-white/[0.08]"><ArrowLeft size={15} /> Dashboard</Link>
-      </header>
-
-      <main className="relative z-10 mx-auto max-w-4xl px-5 pb-20 pt-12">
-        <div className="text-center">
-          <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-violet-300/20 bg-gradient-to-br from-violet-500/20 to-cyan-400/10 text-violet-200 shadow-[0_0_35px_rgba(124,58,237,.15)]"><Icon size={28} /></div>
-          <p className="mt-6 text-xs font-bold uppercase tracking-[.22em] text-violet-300">Doclyn tool</p>
-          <h1 className="font-display mt-3 text-4xl font-bold sm:text-5xl">{current.title}</h1>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-slate-500">{current.desc}</p>
+    <div className="mx-auto w-full max-w-2xl px-4 py-14">
+      <div className="mb-8 flex items-start gap-3">
+        <span className="glass flex size-10 shrink-0 items-center justify-center rounded-xl text-accent">
+          <Icon className="size-5" strokeWidth={1.75} />
+        </span>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">{config.title}</h1>
+          <p className="mt-1 text-sm text-muted">{config.description}</p>
         </div>
+      </div>
 
-        <div className="glass-dark neon-border mt-12 rounded-[30px] p-4 sm:p-6">
-          <div className="rounded-[24px] border border-dashed border-violet-300/20 bg-gradient-to-br from-violet-500/[0.07] via-transparent to-cyan-400/[0.04] p-10 text-center sm:p-16">
-            <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-white/10 bg-white/[0.045] text-slate-300 shadow-[0_0_35px_rgba(124,58,237,.10)]">
-              <UploadCloud size={27} />
+      <div className="space-y-5">
+        <UploadZone multiple={config.multiple} disabled={busy} onFilesSelected={addFiles} hint={config.hint} />
+
+        {files.length > 0 ? (
+          <div>
+            <div className="mb-2 flex items-baseline justify-between">
+              <h2 className="text-sm font-medium text-ink">Selected</h2>
+              <span className="font-mono text-xs text-muted">{files.length} file(s)</span>
             </div>
-            <h2 className="font-display mt-5 text-xl font-semibold">Drop your PDF here</h2>
-            <p className="mt-2 text-sm text-slate-600">or select a file from your device</p>
-            <button onClick={() => setOpen(true)} className="glow-button mt-6 inline-flex items-center gap-2 rounded-xl border border-violet-300/20 bg-gradient-to-r from-violet-600 to-indigo-500 px-5 py-3 text-sm font-semibold text-white">Choose files <ArrowRight size={16} /></button>
-            <div className="mt-5 flex items-center justify-center gap-2 text-[11px] text-slate-600"><FileText size={13} /> PDF only · maximum 50 MB</div>
+            <ul className="space-y-2">
+              {files.map((file, index) => (
+                <FileListItem
+                  key={`${file.name}-${index}`}
+                  name={file.name}
+                  size={file.size}
+                  status={fileIds[index] ? "uploaded" : undefined}
+                  onRemove={busy ? undefined : () => removeFile(index)}
+                />
+              ))}
+            </ul>
           </div>
+        ) : null}
+
+        {config.extraField ? (
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted">{config.extraLabel}</label>
+            <input
+              value={extra}
+              onChange={(e) => setExtra(e.target.value)}
+              disabled={busy}
+              placeholder={config.extraPlaceholder}
+              className="glass w-full rounded-xl border border-line px-3.5 py-2.5 font-mono text-sm text-ink outline-none focus:border-accent"
+            />
+          </div>
+        ) : null}
+
+        {config.levelField ? (
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-muted">Compression level</label>
+            <div className="glass inline-flex rounded-xl border border-line p-1">
+              {LEVELS.map((lvl) => (
+                <button
+                  key={lvl}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setLevel(lvl)}
+                  className={`rounded-lg px-4 py-1.5 text-sm font-medium capitalize transition-colors ${
+                    level === lvl ? "bg-accent text-white" : "text-muted hover:text-ink"
+                  }`}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="flex items-center gap-3">
+          <NeonButton onClick={handleRun} disabled={busy || files.length < config.minFiles}>
+            {busy ? "Working…" : config.title}
+          </NeonButton>
+          {files.length > 0 && !busy ? (
+            <NeonButton variant="ghost" onClick={reset}>
+              Clear
+            </NeonButton>
+          ) : null}
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          {["Private workflow", "Simple interface", "Fast feedback"].map((item) => <div key={item} className="glass rounded-xl px-4 py-3 text-center text-xs text-slate-500">{item}</div>)}
-        </div>
-      </main>
-
-      <UploadModal open={open} onClose={() => setOpen(false)} />
+        <ProgressState status={status} message={message} result={result} onRetry={handleRetry} onReset={reset} />
+      </div>
     </div>
   );
 }

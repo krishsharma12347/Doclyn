@@ -1,26 +1,93 @@
 import { useState } from "react";
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, Sparkles } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import NeonButton from "../components/ui/NeonButton";
+import { useAuth } from "../context/AuthContext";
+import { getErrorMessage } from "../services/api";
 
 export default function Register() {
+  const { register } = useAuth();
   const navigate = useNavigate();
-  const [show, setShow] = useState(false);
+
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const update = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+    try {
+      await register(form);
+      // Register does not log the user in — send them to login with a hint.
+      navigate("/login", { state: { justRegistered: true } });
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not create your account."));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
-    <div className="w-full max-w-xl rounded-[30px] glass-dark neon-border p-6 sm:p-10">
-      <div className="mx-auto max-w-md">
-        <div className="grid size-12 place-items-center rounded-2xl border border-cyan-300/15 bg-cyan-400/10 text-cyan-200"><Sparkles size={20} /></div>
-        <h1 className="font-display mt-6 text-3xl font-bold">Create your workspace</h1>
-        <p className="mt-2 text-sm text-slate-500">Start with Doclyn's core PDF tools and expand into intelligent workflows.</p>
+    <>
+      <h1 className="text-center text-xl font-semibold text-ink">Create your account</h1>
+      <p className="mt-1 text-center text-sm text-muted">Start processing PDFs in seconds</p>
 
-        <form onSubmit={(e) => { e.preventDefault(); navigate("/dashboard"); }} className="mt-7 space-y-4">
-          <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">Full name</span><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-violet-300/35"><UserRound size={17} className="text-slate-600" /><input required placeholder="Your name" className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none" /></div></label>
-          <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">Email</span><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-violet-300/35"><Mail size={17} className="text-slate-600" /><input required type="email" placeholder="you@example.com" className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none" /></div></label>
-          <label className="block"><span className="mb-2 block text-xs font-semibold text-slate-400">Password</span><div className="flex items-center rounded-xl border border-white/10 bg-white/[0.035] px-3 focus-within:border-violet-300/35"><LockKeyhole size={17} className="text-slate-600" /><input required minLength={8} type={show ? "text" : "password"} placeholder="At least 8 characters" className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none" /><button type="button" onClick={() => setShow(!show)} className="text-slate-600 hover:text-slate-300">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
-          <button className="glow-button flex w-full items-center justify-center gap-2 rounded-xl border border-violet-300/20 bg-gradient-to-r from-violet-600 to-indigo-500 py-3.5 text-sm font-semibold text-white">Create account <ArrowRight size={16} /></button>
-        </form>
-        <p className="mt-7 text-center text-sm text-slate-600">Already have an account? <Link to="/login" className="font-semibold text-violet-300 hover:text-violet-200">Sign in</Link></p>
-      </div>
-    </div>
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Name</label>
+          <input
+            required
+            value={form.name}
+            onChange={update("name")}
+            className="glass w-full rounded-xl border border-line px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
+            placeholder="Your name"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Email</label>
+          <input
+            type="email"
+            required
+            value={form.email}
+            onChange={update("email")}
+            className="glass w-full rounded-xl border border-line px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
+            placeholder="you@example.com"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-muted">Password</label>
+          <input
+            type="password"
+            required
+            minLength={8}
+            value={form.password}
+            onChange={update("password")}
+            className="glass w-full rounded-xl border border-line px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
+            placeholder="At least 8 characters"
+          />
+        </div>
+
+        {error ? (
+          <div className="flex items-center gap-2 rounded-lg border border-error/30 bg-error/10 px-3 py-2 text-xs text-error">
+            <AlertCircle className="size-3.5 shrink-0" strokeWidth={1.75} />
+            {error}
+          </div>
+        ) : null}
+
+        <NeonButton type="submit" disabled={busy} className="w-full justify-center">
+          {busy ? "Creating account…" : "Create account"}
+        </NeonButton>
+      </form>
+
+      <p className="mt-5 text-center text-sm text-muted">
+        Already have an account?{" "}
+        <Link to="/login" className="font-medium text-accent-2 hover:underline">
+          Log in
+        </Link>
+      </p>
+    </>
   );
 }
