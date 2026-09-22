@@ -1,17 +1,22 @@
 const cron = require('node-cron');
 const jobsService = require('../modules/jobs/jobs.service');
 const { StorageManager } = require('../utils/storage');
-const { connectPostgres } = require('../config/db.postgres');
+const { pool } = require('../config/db.postgres');
 const logger = require('../utils/logger');
 
 let dbPool;
 
 const initCleanupJob = async () => {
   try {
-    dbPool = await connectPostgres();
+    // Use the existing PostgreSQL connection pool
+    await pool.query('SELECT 1');
+
+    dbPool = pool;
+
     logger.info('Cleanup job initialized');
   } catch (error) {
-    logger.error('Failed to initialize cleanup job:', error);
+    logger.error(`Failed to initialize cleanup job: ${error.message}`);
+    throw error;
   }
 };
 
@@ -20,40 +25,58 @@ const cleanupOldFiles = async () => {
     logger.warn('Database not initialized for cleanup job');
     return;
   }
-  
+
   try {
     // Clean up files older than 24 hours
     const fileResult = await dbPool.query(
-      `SELECT id, path FROM files WHERE created_at < NOW() - INTERVAL '24 hours'`
+      `SELECT id, path
+       FROM files
+       WHERE created_at < NOW() - INTERVAL '24 hours'`
     );
-    
+
     const storage = new StorageManager();
+
     let filesDeleted = 0;
     let filesFailed = 0;
-    
+
     for (const file of fileResult.rows) {
       try {
         await storage.deleteFile(file.path);
-        await dbPool.query('DELETE FROM files WHERE id = $1', [file.id]);
+
+        await dbPool.query(
+          'DELETE FROM files WHERE id = $1',
+          [file.id]
+        );
+
         filesDeleted++;
       } catch (error) {
-        logger.warn(`Failed to delete file ${file.id}:`, error.message);
+        logger.warn(
+          `Failed to delete file ${file.id}: ${error.message}`
+        );
+
         filesFailed++;
       }
     }
-    
-    // Clean up job records older than 24 hours (done/failed only)
+
+    // Clean up job records older than 24 hours
+    // Only completed/failed jobs should be removed.
     const jobResult = await jobsService.cleanupOldJobs(24);
-    
-    logger.info(`Cleanup completed: ${filesDeleted} files deleted, ${filesFailed} failed, ${jobResult} job records removed`);
+
+    logger.info(
+      `Cleanup completed: ${filesDeleted} files deleted, ` +
+      `${filesFailed} failed, ` +
+      `${jobResult} job records removed`
+    );
   } catch (error) {
-    logger.error('Cleanup job error:', error);
+    logger.error(`Cleanup job error: ${error.message}`);
   }
 };
 
-// Schedule to run every hour
+// Run every hour
 cron.schedule('0 * * * *', cleanupOldFiles, {
-  timezone: 'UTC'
+  timezone: 'UTC',
 });
 
-module.exports = { initCleanupJob };
+module.exports = {
+  initCleanupJob,
+};

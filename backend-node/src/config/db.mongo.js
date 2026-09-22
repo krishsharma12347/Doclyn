@@ -2,14 +2,16 @@ const mongoose = require('mongoose');
 
 const connectMongo = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    if (!process.env.MONGO_URI) {
+      throw new Error('MONGO_URI is not defined in .env');
+    }
+
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1);
+    console.error(`MongoDB connection error: ${error.message}`);
+    throw error;
   }
 };
 

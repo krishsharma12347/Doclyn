@@ -49,3 +49,52 @@
 2026-09-14T07:20:33.849Z [INFO]: Database connected successfully
 2026-09-14T07:20:33.854Z [INFO]: Server running on port 3000
 2026-09-14T07:20:33.854Z [INFO]: Environment: development
+2026-09-16T11:37:38.270Z [ERROR]: TypeError: connectPostgres is not a function
+    at initCleanupJob (C:\Users\krish\Documents\GitHub\Doclyn\backend-node\src\jobs\cleanup.job.js:11:20)
+    at startWorker (C:\Users\krish\Documents\GitHub\Doclyn\backend-node\worker.js:20:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+2026-09-16T11:41:59.129Z [ERROR]: Failed to initialize cleanup job: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+2026-09-16T11:44:32.727Z [ERROR]: Failed to initialize cleanup job: password authentication failed for user "postgres"
+2026-09-16T11:44:48.284Z [INFO]: Cleanup job initialized
+2026-09-16T12:14:57.964Z [INFO]: Database connected successfully
+2026-09-16T12:14:57.969Z [INFO]: Server running on port 5000
+2026-09-16T12:14:57.969Z [INFO]: Environment: development
+2026-09-16T13:00:00.160Z [ERROR]: Cleanup job error: column "path" does not exist
+2026-09-16T13:03:22.865Z [INFO]: Database connected successfully
+2026-09-16T13:03:22.870Z [INFO]: Server running on port 5000
+2026-09-16T13:03:22.871Z [INFO]: Environment: development
+2026-09-21T07:04:02.359Z [INFO]: Database connected successfully
+2026-09-21T07:04:02.368Z [INFO]: Server running on port 5000
+2026-09-21T07:04:02.368Z [INFO]: Environment: development
+2026-09-21T07:04:08.983Z [INFO]: SIGINT received, shutting down gracefully
+2026-09-21T07:04:25.097Z [INFO]: Cleanup job initialized
+2026-09-21T07:06:56.825Z [INFO]: Database connected successfully
+2026-09-21T07:06:56.834Z [INFO]: Server running on port 5000
+2026-09-21T07:06:56.835Z [INFO]: Environment: development
+2026-09-21T07:21:51.084Z [INFO]: User registered: a69eda96-a2c5-4d8d-8803-94ee7345a451
+2026-09-21T07:22:42.438Z [ERROR]: [object Object]
+2026-09-21T07:23:15.491Z [INFO]: User registered: f27e0fe3-cc96-4e74-affe-a424c1057044
+2026-09-21T07:23:22.486Z [ERROR]: [object Object]
+2026-09-21T07:23:47.975Z [ERROR]: [object Object]
+2026-09-21T07:27:15.667Z [ERROR]: [object Object]
+2026-09-21T07:27:16.701Z [ERROR]: [object Object]
+2026-09-21T07:27:17.620Z [ERROR]: [object Object]
+2026-09-21T07:27:39.072Z [ERROR]: [object Object]
+2026-09-21T07:27:57.075Z [INFO]: SIGINT received, shutting down gracefully
+2026-09-21T07:28:02.095Z [INFO]: Database connected successfully
+2026-09-21T07:28:02.100Z [INFO]: Server running on port 5000
+2026-09-21T07:28:02.100Z [INFO]: Environment: development
+2026-09-21T07:28:17.429Z [ERROR]: [object Object]
+2026-09-21T07:28:17.440Z [ERROR]: [object Object]
+2026-09-21T07:35:46.159Z [ERROR]: [object Object]
+2026-09-21T07:36:05.578Z [ERROR]: [object Object]
+2026-09-21T07:36:05.585Z [ERROR]: [object Object]
+2026-09-21T07:36:39.219Z [INFO]: Database connected successfully
+2026-09-21T07:36:39.224Z [INFO]: Server running on port 5000
+2026-09-21T07:36:39.224Z [INFO]: Environment: development
+2026-09-22T06:03:24.450Z [INFO]: Database connected successfully
+2026-09-22T06:03:24.455Z [INFO]: Server running on port 5000
+2026-09-22T06:03:24.456Z [INFO]: Environment: development
+2026-09-22T06:04:13.809Z [INFO]: Cleanup job initialized
+2026-09-22T06:14:44.291Z [INFO]: Cleanup job initialized
+2026-09-22T07:00:00.204Z [ERROR]: Cleanup job error: column "path" does not exist

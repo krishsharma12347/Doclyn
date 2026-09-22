@@ -12,3 +12,23 @@
 2026-09-08T04:24:56.635Z [ERROR]: [object Object]
 2026-09-08T05:02:08.286Z [ERROR]: [object Object]
 2026-09-08T05:03:45.956Z [ERROR]: [object Object]
+2026-09-16T11:37:38.270Z [ERROR]: TypeError: connectPostgres is not a function
+    at initCleanupJob (C:\Users\krish\Documents\GitHub\Doclyn\backend-node\src\jobs\cleanup.job.js:11:20)
+    at startWorker (C:\Users\krish\Documents\GitHub\Doclyn\backend-node\worker.js:20:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+2026-09-16T11:41:59.129Z [ERROR]: Failed to initialize cleanup job: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+2026-09-16T11:44:32.727Z [ERROR]: Failed to initialize cleanup job: password authentication failed for user "postgres"
+2026-09-16T13:00:00.160Z [ERROR]: Cleanup job error: column "path" does not exist
+2026-09-21T07:22:42.438Z [ERROR]: [object Object]
+2026-09-21T07:23:22.486Z [ERROR]: [object Object]
+2026-09-21T07:23:47.975Z [ERROR]: [object Object]
+2026-09-21T07:27:15.667Z [ERROR]: [object Object]
+2026-09-21T07:27:16.701Z [ERROR]: [object Object]
+2026-09-21T07:27:17.620Z [ERROR]: [object Object]
+2026-09-21T07:27:39.072Z [ERROR]: [object Object]
+2026-09-21T07:28:17.429Z [ERROR]: [object Object]
+2026-09-21T07:28:17.440Z [ERROR]: [object Object]
+2026-09-21T07:35:46.159Z [ERROR]: [object Object]
+2026-09-21T07:36:05.578Z [ERROR]: [object Object]
+2026-09-21T07:36:05.585Z [ERROR]: [object Object]
+2026-09-22T07:00:00.204Z [ERROR]: Cleanup job error: column "path" does not exist

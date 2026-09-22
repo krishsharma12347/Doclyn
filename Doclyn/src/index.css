@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
 
 /* One font family only — keeps the initial network payload small while
    still giving enough weight range (400-800) for a clear heading/body

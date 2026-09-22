@@ -3,8 +3,8 @@ import axios from "axios";
 // FIX: this was defaulting to port 5000. The Node backend runs on port
 // 3000 (see backend-node/.env → PORT=3000). Every request was failing
 // with a connection error because nothing was listening on 5000.
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
-
+const BASE_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
 const ACCESS_KEY = "doclyn_access_token";
 const REFRESH_KEY = "doclyn_refresh_token";
 
